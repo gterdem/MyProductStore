@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MyProductStore.Orders;
 using MyProductStore.Products;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -55,6 +56,7 @@ public class MyProductStoreDbContext :
     #endregion
     
     public DbSet<Product> Products { get; set; }
+    public DbSet<Order> Orders { get; set; }
 
     public MyProductStoreDbContext(DbContextOptions<MyProductStoreDbContext> options)
         : base(options)
@@ -88,6 +90,30 @@ public class MyProductStoreDbContext :
             b.Property(p => p.Price).IsRequired().HasColumnType("decimal(10,4)");
 
             b.HasIndex(q => q.Name);
+        });
+        
+        builder.Entity<Order>(b =>
+        {
+            b.ToTable(MyProductStoreConsts.DbTablePrefix + "Orders", MyProductStoreConsts.DbSchema);
+            b.ConfigureByConvention(); //auto configure for the base class props
+
+            b.Property(q => q.Date).IsRequired();
+            b.Property(q => q.Status).IsRequired();
+            b.Property(q => q.CustomerId).IsRequired();
+
+            b.HasOne<IdentityUser>().WithMany().HasForeignKey(q => q.CustomerId).IsRequired();
+        });
+
+        builder.Entity<OrderLine>(b =>
+        {
+            b.ToTable(MyProductStoreConsts.DbTablePrefix + "OrderLines", MyProductStoreConsts.DbSchema);
+            b.ConfigureByConvention(); //auto configure for the base class props
+
+            b.Property(q => q.Quantity).IsRequired();
+            b.HasKey(op => new {op.OrderId, op.ProductId});
+
+            b.HasOne<Order>().WithMany(q => q.OrderLines).HasForeignKey(q => q.OrderId);
+            b.HasOne<Product>().WithMany().HasForeignKey(q => q.ProductId);
         });
     }
 }
