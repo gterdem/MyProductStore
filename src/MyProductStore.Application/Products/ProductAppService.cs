@@ -1,4 +1,5 @@
 ﻿using System;
+using MyProductStore.Permissions;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
@@ -15,5 +16,10 @@ public class ProductAppService : CrudAppService<
 {
     public ProductAppService(IRepository<Product, Guid> repository) : base(repository)
     {
+        GetListPolicyName = MyProductStorePermissions.Products.Default;
+        GetPolicyName = MyProductStorePermissions.Products.Default;
+        CreatePolicyName = MyProductStorePermissions.Products.Create;
+        UpdatePolicyName = MyProductStorePermissions.Products.Edit;
+        DeletePolicyName = MyProductStorePermissions.Products.Delete;
     }
 }
