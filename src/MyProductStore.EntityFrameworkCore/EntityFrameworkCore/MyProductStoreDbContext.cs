@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MyProductStore.Products;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.EntityFrameworkCore;
+using Volo.Abp.EntityFrameworkCore.Modeling;
 using Volo.Abp.FeatureManagement.EntityFrameworkCore;
 using Volo.Abp.Identity;
 using Volo.Abp.Identity.EntityFrameworkCore;
@@ -51,6 +53,8 @@ public class MyProductStoreDbContext :
     public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
 
     #endregion
+    
+    public DbSet<Product> Products { get; set; }
 
     public MyProductStoreDbContext(DbContextOptions<MyProductStoreDbContext> options)
         : base(options)
@@ -75,11 +79,15 @@ public class MyProductStoreDbContext :
 
         /* Configure your own tables/entities inside here */
 
-        //builder.Entity<YourEntity>(b =>
-        //{
-        //    b.ToTable(MyProductStoreConsts.DbTablePrefix + "YourEntities", MyProductStoreConsts.DbSchema);
-        //    b.ConfigureByConvention(); //auto configure for the base class props
-        //    //...
-        //});
+        builder.Entity<Product>(b =>
+        {
+            b.ToTable(MyProductStoreConsts.DbTablePrefix + "Products", MyProductStoreConsts.DbSchema);
+            b.ConfigureByConvention(); //auto configure for the base class props
+            
+            b.Property(p => p.Name).IsRequired().HasMaxLength(ProductConstants.NameMaxLength);
+            b.Property(p => p.Price).IsRequired().HasColumnType("decimal(10,4)");
+
+            b.HasIndex(q => q.Name);
+        });
     }
 }
