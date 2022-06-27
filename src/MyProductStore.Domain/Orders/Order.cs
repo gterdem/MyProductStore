@@ -9,5 +9,5 @@ public class Order: FullAuditedAggregateRoot<Guid>
     public DateTime Date { get; set; }
     public OrderStatus Status { get; set; }
     public Guid CustomerId { get; set; }
-    public ICollection<OrderLine> OrderLines { get; set; }
+    public ICollection<OrderLine> OrderLines { get; set; } = new List<OrderLine>();
 }
