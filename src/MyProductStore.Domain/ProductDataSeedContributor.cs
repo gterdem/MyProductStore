@@ -30,7 +30,7 @@ public class ProductDataSeedContributor : IDataSeedContributor, ITransientDepend
         {
             Name = "Test Product",
             Price = new decimal(14.50),
-            IsAvailable = true
+            IsAvailable = false
         };
 
         await _productRepository.InsertAsync(testProduct);
