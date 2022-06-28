@@ -31,8 +31,8 @@ public class ProductAppService : CrudAppService<
 
     public async Task<List<ProductDto>> GetProductsByAvailabilityAsync(bool isAvailable)
     {
-        var unavailableProducts = await _productRepository.GetListByAvailability(false);
+        var products = await _productRepository.GetListByAvailability(isAvailable);
 
-        return ObjectMapper.Map<List<Product>, List<ProductDto>>(unavailableProducts);
+        return ObjectMapper.Map<List<Product>, List<ProductDto>>(products);
     }
 }
