@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using MyProductStore.Orders;
 using MyProductStore.Products;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
@@ -62,6 +65,35 @@ public class MyProductStoreDbContext :
         : base(options)
     {
 
+    }
+    
+    // TODO: check the namespace
+    protected bool IsAvailableFilterEnabled => DataFilter?.IsEnabled<IIsAvailable>() ?? false;
+
+    protected override bool ShouldFilterEntity<TEntity>(IMutableEntityType entityType)
+    {
+        if (typeof(IIsAvailable).IsAssignableFrom(typeof(TEntity)))
+        {
+            return true;
+        }
+
+        return base.ShouldFilterEntity<TEntity>(entityType);
+    }
+
+    protected override Expression<Func<TEntity, bool>> CreateFilterExpression<TEntity>()
+    {
+        var expression = base.CreateFilterExpression<TEntity>();
+
+        if (typeof(IIsAvailable).IsAssignableFrom(typeof(TEntity)))
+        {
+            Expression<Func<TEntity, bool>> isAvailableFilter =
+                e => !IsAvailableFilterEnabled || EF.Property<bool>(e, "IsAvailable");
+            expression = expression == null 
+                ? isAvailableFilter 
+                : CombineExpressions(expression, isAvailableFilter);
+        }
+
+        return expression;
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
